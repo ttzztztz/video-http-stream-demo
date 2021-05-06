@@ -1,3 +1,4 @@
+import { selectKeySystem } from "./select";
 import { IPlayList } from "./types";
 import { xhr } from "./xhr";
 
@@ -14,11 +15,14 @@ const waitBuffer = (buffer: SourceBuffer) => {
 };
 
 export const handleSegment = async (
+  video: HTMLVideoElement,
   mediaSource: MediaSource,
-  playlist: IPlayList
+  playlist: IPlayList,
+  type: "video" | "audio"
 ) => {
   const mime = getMimeForCodec(playlist.attributes.CODECS);
   console.log(mime);
+
   const buffer = mediaSource.addSourceBuffer(mime);
 
   for (let i = 0; i < 5; i++) {
@@ -32,7 +36,11 @@ export const handleSegment = async (
       buffer.appendBuffer(initBuf);
       await waitBuffer(buffer);
     }
-    const res = (await xhr(segment.resolvedUri)) as any;
+
+    const currentBuf = (await xhr(segment.resolvedUri, {
+      responseType: "arraybuffer",
+    })) as any;
+    const res = currentBuf;
     buffer.appendBuffer(res);
     await waitBuffer(buffer);
   }

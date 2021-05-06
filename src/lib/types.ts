@@ -11,6 +11,14 @@ export interface ISegment {
   };
 }
 
+export type IContentProtection = Record<
+  string,
+  {
+    attributes: { schemeIdUri: string; value: string };
+    pssh: Uint8Array;
+  }
+>;
+
 export interface IPlayList {
   attributes: {
     NAME: string;
@@ -22,4 +30,5 @@ export interface IPlayList {
     };
   };
   segments: ISegment[];
+  contentProtection?: IContentProtection;
 }

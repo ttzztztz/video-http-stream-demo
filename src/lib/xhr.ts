@@ -1,5 +1,9 @@
 export let bandwidth = 0;
 
+// setInterval(() => {
+//   console.warn(`${bandwidth / 1024.0} KB/s`);
+// }, 1000);
+
 export interface IXHRConfig {
   method?: string;
   body?: any;
@@ -7,8 +11,7 @@ export interface IXHRConfig {
 }
 
 export const xhr = (url: string, config?: IXHRConfig) => {
-  let lastTime = 0,
-    lastLoaded = 0;
+  let startTime = 0;
   return new Promise((res) => {
     var oReq = new XMLHttpRequest();
     oReq.onreadystatechange = function () {
@@ -21,13 +24,13 @@ export const xhr = (url: string, config?: IXHRConfig) => {
       oReq.responseType = config?.responseType;
     }
     oReq.onprogress = function (e) {
-      bandwidth = 1000.0 * ((e.loaded - lastLoaded) / (Date.now() - lastTime));
-      lastLoaded = e.loaded;
-      lastTime = Date.now();
+      if (e.loaded > 0) {
+        bandwidth = 1000.0 * (e.loaded / (Date.now() - startTime));
+      }
     };
 
     oReq.open(config?.method ?? "GET", url);
-    lastTime = Date.now();
+    startTime = Date.now();
     oReq.send(config?.body);
   });
 };
