@@ -1,6 +1,10 @@
-import { IXHRConfig } from "./types";
-
 export let bandwidth = 0;
+
+export interface IXHRConfig {
+  method?: string;
+  body?: any;
+  responseType?: XMLHttpRequestResponseType;
+}
 
 export const xhr = (url: string, config?: IXHRConfig) => {
   let lastTime = 0,
@@ -12,6 +16,10 @@ export const xhr = (url: string, config?: IXHRConfig) => {
         res(oReq.response);
       }
     };
+
+    if (config?.responseType) {
+      oReq.responseType = config?.responseType;
+    }
     oReq.onprogress = function (e) {
       bandwidth = 1000.0 * ((e.loaded - lastLoaded) / (Date.now() - lastTime));
       lastLoaded = e.loaded;

@@ -10,7 +10,10 @@ function App() {
     const mediaSource = new MediaSource();
     el.src = URL.createObjectURL(mediaSource);
 
-    dashHandler(mediaSource, MPD_SRC);
+    mediaSource.onsourceopen = () => {
+      URL.revokeObjectURL(el.src);
+      dashHandler(mediaSource, MPD_SRC);
+    }
   });
 
   return (

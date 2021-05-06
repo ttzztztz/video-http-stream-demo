@@ -1,8 +1,3 @@
-export interface IXHRConfig {
-  method?: string;
-  body?: any;
-}
-
 export interface ISegment {
   number: string;
   resolvedUri: string;

@@ -3,6 +3,16 @@ import { xhr } from "./xhr";
 
 const { getMimeForCodec } = require("./codec");
 
+const waitBuffer = (buffer: SourceBuffer) => {
+  return new Promise<void>((res) => {
+    const listener = () => {
+      res();
+      buffer.removeEventListener("updateend", listener);
+    };
+    buffer.addEventListener("updateend", listener);
+  });
+};
+
 export const handleSegment = async (
   mediaSource: MediaSource,
   playlist: IPlayList
@@ -15,14 +25,15 @@ export const handleSegment = async (
     const segment = playlist.segments[i];
 
     if (segment.map && !segment.map.bytes) {
-      const initRes = (await xhr(segment.map.resolvedUri)) as any;
-      const initBuf = new Uint8Array(initRes);
+      const initBuf = (await xhr(segment.map.resolvedUri, {
+        responseType: "arraybuffer",
+      })) as any;
       segment.map.bytes = initBuf;
       buffer.appendBuffer(initBuf);
-      console.log("append initial");
+      await waitBuffer(buffer);
     }
     const res = (await xhr(segment.resolvedUri)) as any;
-    buffer.appendBuffer(new Uint8Array(res));
-    console.log("append ", i);
+    buffer.appendBuffer(res);
+    await waitBuffer(buffer);
   }
 };
