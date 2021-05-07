@@ -8,6 +8,7 @@ export interface IXHRConfig {
   method?: string;
   body?: any;
   responseType?: XMLHttpRequestResponseType;
+  headers?: Record<string, string>;
 }
 
 export const xhr = (url: string, config?: IXHRConfig) => {
@@ -30,6 +31,11 @@ export const xhr = (url: string, config?: IXHRConfig) => {
     };
 
     oReq.open(config?.method ?? "GET", url);
+    if (config?.headers) {
+      Object.entries(config?.headers).forEach(([k, v]) =>
+        oReq.setRequestHeader(k, v)
+      );
+    }
     startTime = Date.now();
     oReq.send(config?.body);
   });

@@ -1,10 +1,6 @@
-import { getMimeForCodec } from "./codec";
+import { setupDRM } from "./drm";
 import { handleSegment } from "./segment";
-import {
-  selectVideoManifest,
-  selectAudioManifest,
-  selectKeySystem,
-} from "./select";
+import { selectVideoManifest, selectAudioManifest } from "./select";
 import { bandwidth, xhr } from "./xhr";
 
 const mpdParser = require("mpd-parser");
@@ -34,30 +30,13 @@ export const dashHandler = async (
     selectedAudioManifest
   );
 
-  if (selectedVideoManifest.contentProtection) {
-    const key = selectKeySystem(selectedVideoManifest.contentProtection);
-    const keyAccess = await navigator.requestMediaKeySystemAccess(key, [
-      {
-        videoCapabilities: [
-          {
-            contentType: getMimeForCodec(
-              selectedVideoManifest.attributes.CODECS
-            ),
-          },
-        ],
-        audioCapabilities: [
-          {
-            contentType: getMimeForCodec(
-              selectedAudioManifest?.attributes.CODECS
-            ),
-          },
-        ],
-      },
-    ]);
-    const mediaKeys = await keyAccess.createMediaKeys();
-    await video.setMediaKeys(mediaKeys);
-  }
-
+  setupDRM(
+    video,
+    mediaSource,
+    mpdSrc,
+    selectedVideoManifest,
+    selectedAudioManifest
+  );
   if (selectedVideoManifest) {
     handleSegment(video, mediaSource, selectedVideoManifest, "video");
   }
