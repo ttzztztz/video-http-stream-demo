@@ -13,11 +13,15 @@ export interface IXHRConfig {
 
 export const xhr = (url: string, config?: IXHRConfig) => {
   let startTime = 0;
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     var oReq = new XMLHttpRequest();
     oReq.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        res(oReq.response);
+      if (this.readyState === 4) {
+        if (this.status === 200 || this.status === 206) {
+          res(oReq.response);
+        } else {
+          rej(oReq);
+        }
       }
     };
 

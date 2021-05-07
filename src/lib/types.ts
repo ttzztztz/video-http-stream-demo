@@ -1,14 +1,32 @@
+export interface IByteRange {
+  length: number;
+  offset: number;
+}
+
+export interface ISegmentMap {
+  resolvedUri: string;
+  uri: string;
+  bytes: undefined | Uint8Array | ArrayBuffer;
+  byterange?: IByteRange;
+}
+
 export interface ISegment {
   number: string;
   resolvedUri: string;
   timeline: number;
   uri: string;
   duration: number;
-  map: {
-    resolvedUri: string;
-    uri: string;
-    bytes: undefined | Uint8Array;
-  };
+  map: ISegmentMap;
+}
+
+export interface ISIDXData {
+  byterange: IByteRange;
+  duration: number;
+  map: ISegmentMap;
+  number: number;
+  resolvedUri: string;
+  timeline: number;
+  uri: string;
 }
 
 export type IContentProtection = Record<
@@ -31,4 +49,5 @@ export interface IPlayList {
   };
   segments: ISegment[];
   contentProtection?: IContentProtection;
+  sidx?: ISIDXData;
 }

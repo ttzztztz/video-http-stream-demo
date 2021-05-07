@@ -1,5 +1,6 @@
-import { selectKeySystem } from "./select";
-import { IPlayList } from "./types";
+import { rangeBytesHeader } from "./headers";
+import { parseSidx } from "./parse_sidx";
+import { IPlayList, ISIDXData } from "./types";
 import { xhr } from "./xhr";
 
 const { getMimeForCodec } = require("./codec");
@@ -14,6 +15,45 @@ const waitBuffer = (buffer: SourceBuffer) => {
   });
 };
 
+export const handleSIDXSegment = async (
+  video: HTMLVideoElement,
+  mediaSource: MediaSource,
+  sidxData: ISIDXData,
+  type: "video" | "audio",
+  buffer: SourceBuffer
+) => {
+  const initBuf = (await xhr(sidxData.resolvedUri, {
+    responseType: "arraybuffer",
+    headers: {
+      Range: rangeBytesHeader(sidxData.byterange),
+    },
+  })) as ArrayBuffer;
+  const initBufView = new Uint8Array(initBuf).subarray(8);
+  const parsedSidx = parseSidx(initBufView) as any;
+  console.log("parsed sidx", parsedSidx);
+
+  for (
+    let i = 0, last = sidxData.byterange.offset + sidxData.byterange.length;
+    i < 5;
+    i++
+  ) {
+    const chunkSize = parsedSidx.references[i].referencedSize;
+    const currentBuf = (await xhr(sidxData.resolvedUri, {
+      responseType: "arraybuffer",
+      headers: {
+        Range: rangeBytesHeader({
+          offset: last,
+          length: chunkSize,
+        }),
+      },
+    })) as ArrayBuffer;
+    last += chunkSize;
+
+    buffer.appendBuffer(currentBuf);
+    await waitBuffer(buffer);
+  }
+};
+
 export const handleSegment = async (
   video: HTMLVideoElement,
   mediaSource: MediaSource,
@@ -24,6 +64,10 @@ export const handleSegment = async (
   console.log(mime);
 
   const buffer = mediaSource.addSourceBuffer(mime);
+  if (playlist.sidx) {
+    await handleSIDXSegment(video, mediaSource, playlist.sidx, type, buffer);
+    return;
+  }
 
   for (let i = 0; i < 5; i++) {
     const segment = playlist.segments[i];
@@ -31,7 +75,7 @@ export const handleSegment = async (
     if (segment.map && !segment.map.bytes) {
       const initBuf = (await xhr(segment.map.resolvedUri, {
         responseType: "arraybuffer",
-      })) as any;
+      })) as ArrayBuffer;
       segment.map.bytes = initBuf;
       buffer.appendBuffer(initBuf);
       await waitBuffer(buffer);
@@ -39,7 +83,7 @@ export const handleSegment = async (
 
     const currentBuf = (await xhr(segment.resolvedUri, {
       responseType: "arraybuffer",
-    })) as any;
+    })) as ArrayBuffer;
     const res = currentBuf;
     buffer.appendBuffer(res);
     await waitBuffer(buffer);
