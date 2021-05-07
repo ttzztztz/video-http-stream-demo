@@ -32,6 +32,19 @@ export const handleSIDXSegment = async (
   const parsedSidx = parseSidx(initBufView) as any;
   console.log("parsed sidx", parsedSidx);
 
+  const firstBuf = (await xhr(sidxData.resolvedUri, {
+    responseType: "arraybuffer",
+    headers: {
+      Range: rangeBytesHeader({
+        offset: 0,
+        length: sidxData.byterange.offset,
+      }),
+    },
+  })) as ArrayBuffer;
+  buffer.appendBuffer(firstBuf);
+  console.log("append first buffer");
+  await waitBuffer(buffer);
+
   for (
     let i = 0, last = sidxData.byterange.offset + sidxData.byterange.length;
     i < 5;
@@ -50,6 +63,7 @@ export const handleSIDXSegment = async (
     last += chunkSize;
 
     buffer.appendBuffer(currentBuf);
+    console.log("append sidx buffer", i);
     await waitBuffer(buffer);
   }
 };
