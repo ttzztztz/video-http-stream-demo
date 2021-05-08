@@ -32,7 +32,7 @@ function App() {
       <video
         id="video"
         controls
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "600px", height: "400px" }}
       ></video>
     </div>
   );
