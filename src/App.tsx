@@ -21,9 +21,45 @@ function App() {
     el.src = URL.createObjectURL(mediaSource);
 
     console.log("mediasource", mediaSource);
-    mediaSource.addEventListener("sourceopen", () => {
-      URL.revokeObjectURL(el.src);
-      dashHandler(el, mediaSource, MPD_SRC);
+    mediaSource.addEventListener("sourceopen", async () => {
+      // URL.revokeObjectURL(el.src);
+      // dashHandler(el, mediaSource, MPD_SRC);
+
+      const buffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.640020"');
+      const abuffer = mediaSource.addSourceBuffer('audio/mp4; codecs="mp4a.40.2"');
+
+      const initseg = await fetch('https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/v5/main.mp4', {
+        headers: {
+          Range: 'bytes=0-718'
+        }
+      });
+      const initseg_ab = await initseg.arrayBuffer();
+      buffer.appendBuffer(initseg_ab);
+
+      const seg1 = await fetch('https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/v5/main.mp4', {
+        headers: {
+          Range: 'bytes=719-1508718'
+        }
+      });
+      const seg1_ab = await seg1.arrayBuffer();
+      buffer.appendBuffer(seg1_ab);
+
+
+      const ainitseg = await fetch('https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/a1/main.mp4', {
+        headers: {
+          Range: 'bytes=0-615'
+        }
+      });
+      const ainitseg_ab = await ainitseg.arrayBuffer();
+      abuffer.appendBuffer(ainitseg_ab);
+
+      const aseg1 = await fetch('https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/a1/main.mp4', {
+        headers: {
+          Range: 'bytes=616-121090'
+        }
+      });
+      const aseg1_ab = await aseg1.arrayBuffer();
+      abuffer.appendBuffer(aseg1_ab);
     });
   });
 
