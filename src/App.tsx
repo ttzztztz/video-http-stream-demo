@@ -16,6 +16,7 @@ const MPD_SRC =
 function App() {
   useEffect(() => {
     const el = document.querySelector("#video") as HTMLVideoElement;
+    (window as any).v = el;
 
     const mediaSource = new MediaSource();
     el.src = URL.createObjectURL(mediaSource);
