@@ -11,7 +11,7 @@ export const dashHandler = async (
   mpdSrc: string
 ) => {
   video.addEventListener("encrypted", (e) => {
-    console.warn(e);
+    console.warn('encrypted', e);
   });
 
   const file = await xhr(mpdSrc);
@@ -30,13 +30,13 @@ export const dashHandler = async (
     selectedAudioManifest
   );
 
-  setupDRM(
-    video,
-    mediaSource,
-    mpdSrc,
-    selectedVideoManifest,
-    selectedAudioManifest
-  );
+  // setupDRM(
+  //   video,
+  //   mediaSource,
+  //   mpdSrc,
+  //   selectedVideoManifest,
+  //   selectedAudioManifest
+  // );
   if (selectedVideoManifest) {
     handleSegment(video, mediaSource, selectedVideoManifest, "video");
   }

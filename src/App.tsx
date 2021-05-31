@@ -6,12 +6,12 @@ import { dashHandler } from "./lib/dash";
 // const MPD_SRC = "https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd";
 
 // DRM
-// const MPD_SRC =
-//   "https://media.axprod.net/TestVectors/v7-MultiDRM-SingleKey/Manifest.mpd";
+const MPD_SRC =
+  "https://media.axprod.net/TestVectors/v7-MultiDRM-SingleKey/Manifest.mpd";
 
 // SIDX
-const MPD_SRC =
-  "https://dash.akamaized.net/dash264/TestCases/10a/1/iis_forest_short_poem_multi_lang_480p_single_adapt_aaclc_sidx.mpd";
+// const MPD_SRC =
+//   "https://dash.akamaized.net/dash264/TestCases/10a/1/iis_forest_short_poem_multi_lang_480p_single_adapt_aaclc_sidx.mpd";
 
 function App() {
   useEffect(() => {

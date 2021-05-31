@@ -8,8 +8,9 @@ const { getMimeForCodec } = require("./codec");
 const waitBuffer = (buffer: SourceBuffer) => {
   return new Promise<void>((res) => {
     const listener = () => {
-      res();
+      console.warn('buffeer updateend', buffer.buffered.length);
       buffer.removeEventListener("updateend", listener);
+      res();
     };
     buffer.addEventListener("updateend", listener);
   });
@@ -92,6 +93,7 @@ export const handleSegment = async (
       })) as ArrayBuffer;
       segment.map.bytes = initBuf;
       buffer.appendBuffer(initBuf);
+      (window as any).buf = buffer;
       await waitBuffer(buffer);
     }
 
