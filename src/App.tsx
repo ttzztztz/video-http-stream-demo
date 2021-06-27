@@ -18,6 +18,9 @@ function App() {
     const el = document.querySelector("#video") as HTMLVideoElement;
 
     const mediaSource = new MediaSource();
+    (window as any).mediaSorce = mediaSource;
+    (window as any).v = el;
+
     el.src = URL.createObjectURL(mediaSource);
 
     console.log("mediasource", mediaSource);
